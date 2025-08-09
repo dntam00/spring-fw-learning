@@ -36,6 +36,7 @@
     <module>concurrent-update</module>
     <module>asycn-annotation</module>
     <module>opentelemetry</module>
+    <module>webflux</module>
   </modules>
 
   <dependencies>
