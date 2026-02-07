@@ -1,2 +1,3 @@
 .idea
 learn-spring.iml
+/thread-per-request/target/

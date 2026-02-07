@@ -1,4 +1,4 @@
-package ngtam.learningspring.asycnannotation;
+package ngtam.learningspring.asyncannotation;
 
 import lombok.*;
 import lombok.experimental.Accessors;

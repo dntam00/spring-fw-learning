@@ -34,10 +34,11 @@
     <module>jpa-fetch-multiple-lazy</module>
     <module>extra-info-many-to-many</module>
     <module>concurrent-update</module>
-    <module>asycn-annotation</module>
+    <module>async-annotation</module>
     <module>opentelemetry</module>
     <module>webflux</module>
     <module>web</module>
+    <module>thread-per-request</module>
   </modules>
 
   <dependencies>

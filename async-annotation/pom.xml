@@ -11,8 +11,8 @@
     <groupId>ngtam.learning-spring</groupId>
     <artifactId>async-annotation</artifactId>
     <version>1.0.0</version>
-    <name>asycn-annotation</name>
-    <description>asycn-annotation</description>
+    <name>async-annotation</name>
+    <description>async-annotation</description>
     <properties>
         <java.version>17</java.version>
     </properties>
