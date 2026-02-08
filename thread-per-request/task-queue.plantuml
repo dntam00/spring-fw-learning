@@ -1,0 +1,74 @@
+@startuml                                                                                                                                                                            skinparam backgroundColor #FEFEFE                                                                                                                                                    skinparam sequenceMessageAlign center
+  skinparam responseMessageBelowArrow true
+  skinparam sequenceArrowThickness 1.5                                                                                                                                                 skinparam roundcorner 8
+  skinparam sequenceLifeLineBorderColor #555555
+
+  skinparam participant {
+      BackgroundColor #E3F2FD
+      BorderColor #1565C0
+      FontColor #1A1A1A
+      FontSize 13
+  }
+
+  skinparam note {
+      BackgroundColor #FFF9C4
+      BorderColor #F9A825
+      FontSize 11
+  }
+
+  skinparam collections {
+      BackgroundColor #E8F5E9
+      BorderColor #2E7D32
+  }
+
+  title Tomcat NIO Connector — Thread Model with Task Queue
+
+  participant "Client"         as C
+  participant "Acceptor\nThread" as A
+  participant "Poller\nThread"   as P
+  collections "Task Queue"       as Q
+  participant "Worker\nThread"   as W
+
+  == Connection Phase ==
+
+  C -> A : TCP connect
+  activate A
+  A -> A : accept()
+  A -> P : Register socket (OP_READ)
+  deactivate A
+
+  == Request Phase ==
+
+  C -->> P : HTTP data arrives\n(kernel buffer)
+  activate P
+  note over P : Selector detects\nsocket readable
+  P -> Q : Submit task to\nThreadPoolExecutor
+  deactivate P
+
+  alt Worker thread available
+      Q -> W : Dequeue & run immediately
+      activate W
+      W -> W : Read bytes from socket
+      W -> W : Parse HTTP &\nexecute servlet
+      W -> C : Write HTTP response
+      W -> P : Return socket to Poller
+      deactivate W
+      note over W : Thread returned to pool
+
+  else All workers busy, queue has capacity
+      note over Q : Task waits in queue
+      Q -> Q : Queued...
+      ... Worker finishes previous request ...
+      Q -> W : Dequeue & run
+      activate W
+      W -> W : Read, parse, process
+      W -> C : Write HTTP response
+      W -> P : Return socket to Poller
+      deactivate W
+
+  else All workers busy, queue full
+      note over Q #FFCDD2 : Queue full!\nTask rejected
+      Q --> C : Connection reset / 503
+  end
+
+  @enduml

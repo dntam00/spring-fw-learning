@@ -1,0 +1,54 @@
+@startuml                                                                                                                                                                            skinparam backgroundColor #FEFEFE
+  skinparam sequenceMessageAlign center                                                                                                                                                skinparam responseMessageBelowArrow true
+  skinparam sequenceArrowThickness 1.5
+  skinparam roundcorner 8
+  skinparam sequenceLifeLineBorderColor #555555
+
+  skinparam participant {
+      BackgroundColor #E3F2FD
+      BorderColor #1565C0
+      FontColor #1A1A1A
+      FontSize 13
+  }
+
+  skinparam note {
+      BackgroundColor #FFF9C4
+      BorderColor #F9A825
+      FontSize 11
+  }
+
+  title Tomcat NIO Connector — Thread Model
+
+  participant "Client"         as C
+  participant "Acceptor\nThread" as A
+  participant "Poller\nThread"   as P
+  participant "Worker\nThread"   as W
+
+  == Connection Phase ==
+
+  C -> A : TCP connect
+  activate A
+  A -> A : accept()
+  A -> P : Register socket (OP_READ)
+  deactivate A
+
+  == Request Phase ==
+
+  C -->> P : HTTP data arrives\n(kernel buffer)
+  activate P
+  note over P : Selector detects\nsocket readable
+  P -> W : Dispatch socket
+  deactivate P
+
+  activate W
+  W -> W : Read bytes from socket
+  W -> W : Parse HTTP &\nexecute servlet
+  W -> C : Write HTTP response
+
+  == Keep-Alive ==
+
+  W -> P : Return socket to Poller
+  deactivate W
+  note over W : Thread returned to pool
+
+  @enduml
